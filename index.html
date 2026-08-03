@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário Admissional | Contab Minas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#E4212F;
+    --teal-dark:#231F20;
+    --teal-tint:#FBE7E8;
+    --ink:#161616;
+    --white:#FFFFFF;
+    --gold:#231F20;
+    --gold-tint:#EFEEED;
+    --bg:#F7F5F1;
+    --line:#DCD8CF;
+    --danger:#B23A2E;
+    --ok:#3D7A4E;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(22,22,22,0.04), 0 6px 20px rgba(228,33,47,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding-bottom:110px;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--teal);}
+
+  /* ---------- Progress bar ---------- */
+  .progress-shell{
+    position:sticky; top:0; z-index:40;
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+  }
+  .progress-track{
+    height:5px; width:100%; background:var(--teal-tint);
+    position:relative; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; width:0%; background:linear-gradient(90deg,var(--teal),var(--gold));
+    transition:width .35s ease;
+  }
+  .progress-meta{
+    max-width:900px; margin:0 auto; padding:8px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:12px; color:#5b5b5b; letter-spacing:.02em;
+  }
+  .progress-meta strong{color:var(--teal); font-weight:700;}
+  #saveIndicator{display:flex; align-items:center; gap:6px;}
+  #saveIndicator .dot{width:7px;height:7px;border-radius:50%; background:var(--ok);}
+
+  /* ---------- Records bar ---------- */
+  .records-bar{
+    background:var(--teal-dark); color:var(--white);
+  }
+  .records-bar-inner{
+    max-width:900px; margin:0 auto; padding:10px 20px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .records-bar-name{font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; min-width:0;}
+  .records-bar-name .who{max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .status-pill{
+    font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+    padding:3px 8px; border-radius:20px; flex:0 0 auto;
+  }
+  .status-pill.andamento{background:var(--gold-tint); color:#3a3a3a;}
+  .status-pill.enviado{background:#DFF0E2; color:#255233;}
+  .records-bar-actions{display:flex; gap:8px; margin-left:auto;}
+  .btn-mini{
+    font-family:inherit; font-size:11.5px; font-weight:700; letter-spacing:.02em;
+    padding:7px 12px; border-radius:7px; cursor:pointer; border:1.5px solid rgba(255,255,255,0.4);
+    background:transparent; color:var(--white); white-space:nowrap;
+  }
+  .btn-mini:hover{background:rgba(255,255,255,0.12);}
+  .btn-mini.solid{background:var(--gold); color:var(--white); border-color:var(--gold);}
+  .btn-mini.solid:hover{filter:brightness(1.06);}
+
+  /* ---------- Records modal / list ---------- */
+  .records-modal .modal{max-width:640px;}
+  .records-toolbar{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .records-tabs{display:flex; gap:6px; background:#F0EEE8; padding:4px; border-radius:8px;}
+  .records-tabs button{
+    font-family:inherit; font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:6px;
+    border:none; background:none; cursor:pointer; color:#7a7870;
+  }
+  .records-tabs button.active{background:var(--white); color:var(--teal); box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+  .record-card{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line);
+    border-radius:9px; margin-bottom:8px; background:#FCFBF9;
+  }
+  .record-card.is-current{border-color:var(--teal); background:var(--teal-tint);}
+  .record-card-info{flex:1 1 auto; min-width:0;}
+  .record-card-info .rname{font-size:13.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .record-card-info .rmeta{font-size:11px; color:#8a877e; margin-top:2px;}
+  .record-card-actions{display:flex; gap:6px; flex-wrap:wrap; flex:0 0 auto;}
+  .record-card-actions button{
+    font-family:inherit; font-size:11px; font-weight:700; padding:6px 9px; border-radius:6px;
+    border:1px solid var(--line); background:var(--white); cursor:pointer; color:#514f49;
+  }
+  .record-card-actions button:hover{border-color:var(--teal); color:var(--teal);}
+  .record-card-actions button.danger:hover{border-color:var(--danger); color:var(--danger);}
+  .records-empty{text-align:center; padding:30px 10px; color:#8a877e; font-size:13px;}
+
+  /* ---------- Header ---------- */
+  .form-header{
+    max-width:900px; margin:0 auto; padding:34px 20px 18px;
+  }
+  .brandmark{
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .brandmark .brand-icon{
+    width:0; height:0;
+    border-style:solid;
+    border-width:9px 0 9px 16px;
+    border-color:transparent transparent transparent var(--teal);
+    flex:0 0 auto;
+  }
+  .brandmark .brand-text{
+    display:flex; flex-direction:column; line-height:1; font-weight:800; letter-spacing:.02em;
+  }
+  .brandmark .brand-text span:first-child{color:var(--ink); font-size:15px;}
+  .brandmark .brand-text span:last-child{color:var(--teal); font-size:15px; margin-top:1px;}
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--teal); font-weight:700; margin-bottom:10px;
+  }
+  .eyebrow::before{content:""; width:22px; height:2px; background:var(--gold); display:inline-block;}
+  .form-header h1{
+    font-size:28px; font-weight:800; color:var(--ink); margin:0 0 8px; line-height:1.2;
+  }
+  .form-header p{margin:0; color:#514f49; font-size:14px; max-width:60ch; line-height:1.55;}
+
+  /* ---------- Layout ---------- */
+  form{max-width:900px; margin:0 auto; padding:8px 20px 0;}
+
+  .section{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+    overflow:hidden;
+  }
+  .section-head{
+    display:flex; align-items:center; gap:12px;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #FFFFFF, #FCFBF9);
+  }
+  .section-num{
+    flex:0 0 auto;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--teal); color:var(--white);
+    font-size:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--gold);
+  }
+  .section-head h2{font-size:15px; margin:0; font-weight:700; letter-spacing:.01em; color:var(--ink);}
+  .section-head .hint{font-size:11.5px; color:#8a877e; font-weight:500; margin-left:auto; text-align:right;}
+  .section-body{padding:20px;}
+
+  .grid{display:grid; gap:14px;}
+  .g2{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:1fr 1fr 1fr;}
+  .g4{grid-template-columns:1fr 1fr 1fr 1fr;}
+  @media (max-width:640px){
+    .g2,.g3,.g4{grid-template-columns:1fr;}
+  }
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{
+    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#3d3b36;
+  }
+  .field label .req{color:var(--danger); margin-left:2px;}
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="tel"],
+  .field input[type="date"],
+  .field select,
+  .field textarea{
+    font-family:inherit;
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#FCFBF9;
+    color:var(--ink);
+    width:100%;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-tint); background:var(--white);
+  }
+  .field input:invalid:not(:placeholder-shown){border-color:var(--danger);}
+  .field small.helper{font-size:10.5px; color:#9c998f;}
+  textarea{resize:vertical; min-height:64px;}
+
+  /* ---------- Checkbox / radio pills ---------- */
+  .check-row, .radio-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .pill{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px;
+    border:1px solid var(--line); border-radius:8px;
+    background:#FCFBF9; cursor:pointer;
+    font-size:13px; font-weight:500;
+    transition:all .15s; flex:1 1 200px;
+  }
+  .pill:hover{border-color:var(--teal);}
+  .pill input{accent-color:var(--teal); width:16px; height:16px; flex:0 0 auto;}
+  .pill:has(input:checked){
+    background:var(--teal-tint); border-color:var(--teal); font-weight:700; color:var(--teal-dark);
+  }
+
+  /* ---------- Document checklist ---------- */
+  .doc-list{display:grid; grid-template-columns:1fr 1fr; gap:2px 24px;}
+  @media (max-width:640px){.doc-list{grid-template-columns:1fr;}}
+  .doc-item{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 4px; border-bottom:1px dashed var(--line);
+  }
+  .doc-item input{margin-top:2px; width:17px; height:17px; accent-color:var(--gold); flex:0 0 auto;}
+  .doc-item label{font-size:13px; line-height:1.4; color:var(--ink); cursor:pointer;}
+  .doc-item .tag{
+    display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.03em;
+    color:var(--danger); border:1px solid var(--danger); border-radius:4px;
+    padding:1px 5px; margin-left:6px; text-transform:uppercase; vertical-align:middle;
+  }
+  .doc-item .tag-neutral{
+    display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.03em;
+    color:#7a7870; border:1px solid var(--line); border-radius:4px; background:#F5F3EE;
+    padding:1px 5px; margin-left:6px; text-transform:uppercase; vertical-align:middle;
+  }
+
+  /* ---------- Conditional detail fields ---------- */
+  .cond-item{border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .cond-item .pill{border:none; border-radius:0; flex:1 1 auto; width:100%;}
+  .cond-item .pill:has(input:checked){border-bottom:1px solid var(--teal);}
+  .cond-detail{display:none; padding:12px 14px; background:#FCFBF9;}
+  .cond-detail.show{display:block;}
+  .cond-detail label{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#3d3b36; display:block; margin-bottom:6px;}
+  .cond-detail input, .cond-detail select{
+    font-family:inherit; font-size:13px; padding:9px 11px; border:1px solid var(--line);
+    border-radius:7px; background:var(--white); width:100%;
+  }
+  .cond-detail input:focus, .cond-detail select:focus{outline:none; border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-tint);}
+
+  .callout{
+    display:flex; gap:12px; padding:16px 18px;
+    background:var(--gold-tint); border:1px solid var(--line); border-radius:8px;
+    font-size:12.5px; line-height:1.6; color:#3a3a3a; margin-top:6px;
+  }
+  .callout b{color:var(--ink);}
+  .callout .icon{flex:0 0 auto; font-size:16px;}
+
+  /* ---------- Signature ---------- */
+  .sig-block{display:flex; flex-direction:column; gap:8px;}
+  .sig-canvas-wrap{
+    border:1.5px dashed var(--line); border-radius:8px; background:#FCFBF9; position:relative;
+  }
+  canvas.sig-canvas{display:block; width:100%; height:150px; touch-action:none; cursor:crosshair;}
+  .sig-placeholder{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11.5px; color:#b6b2a6; pointer-events:none; letter-spacing:.03em;
+  }
+  .sig-actions{display:flex; justify-content:space-between; align-items:center;}
+  .sig-actions .btn-link{
+    font-size:11.5px; font-weight:700; color:var(--teal); background:none; border:none; cursor:pointer;
+    text-decoration:underline; padding:0;
+  }
+  .sig-caption{font-size:11px; color:#8a877e;}
+
+  /* ---------- Etnia declaration ---------- */
+  .etnia-text{font-size:12.5px; line-height:1.9; color:#3d3b36; background:#FCFBF9; border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+  .etnia-text input[type="text"]{
+    border:none; border-bottom:1px solid var(--ink); background:transparent; font-family:inherit;
+    font-size:12.5px; padding:2px 4px; min-width:120px; display:inline-block;
+  }
+  .etnia-text input:focus{outline:none; border-bottom:1.5px solid var(--teal);}
+
+  /* ---------- Action bar ---------- */
+  .action-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:var(--white); border-top:1px solid var(--line);
+    box-shadow:0 -6px 20px rgba(1,81,106,0.08);
+    padding:12px 20px;
+  }
+  .action-inner{
+    max-width:900px; margin:0 auto; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  .btn{
+    font-family:inherit; font-size:13px; font-weight:700; letter-spacing:.01em;
+    padding:11px 16px; border-radius:8px; cursor:pointer; border:1.5px solid transparent;
+    display:inline-flex; align-items:center; gap:7px; transition:transform .1s, filter .15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--teal); color:var(--white);}
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-gold{background:var(--gold); color:var(--white);}
+  .btn-gold:hover{filter:brightness(1.06);}
+  .btn-outline{background:var(--white); color:var(--teal); border-color:var(--teal);}
+  .btn-outline:hover{background:var(--teal-tint);}
+  .btn-ghost{background:none; color:#8a877e; border:none; margin-left:auto;}
+  .btn-ghost:hover{color:var(--danger);}
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(22,22,22,0.55); z-index:100;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.hidden{display:none;}
+  #confirmModalOverlay{z-index:200;}
+  .modal{
+    background:var(--white); border-radius:12px; max-width:480px; width:100%;
+    padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.3); max-height:85vh; overflow:auto;
+  }
+  .modal h3{margin:0 0 6px; font-size:16px; color:var(--ink);}
+  .modal p.desc{font-size:12.5px; color:#7a7870; margin:0 0 16px; line-height:1.5;}
+  .modal .field{margin-bottom:14px;}
+  .modal-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:16px;}
+  .modal pre{
+    background:#F5F3EE; border:1px solid var(--line); border-radius:8px; padding:14px;
+    font-size:11px; line-height:1.6; white-space:pre-wrap; word-break:break-word; max-height:300px; overflow:auto;
+  }
+  .close-x{
+    position:absolute; top:14px; right:16px; background:none; border:none; font-size:18px;
+    color:#9c998f; cursor:pointer;
+  }
+  .modal{position:relative;}
+  .banner-ok{
+    display:none; align-items:center; gap:8px; background:#E9F3EB; border:1px solid #C3DFC9;
+    color:#2c5c3a; font-size:12px; padding:10px 12px; border-radius:8px; margin-top:10px; font-weight:600;
+  }
+  .banner-ok.show{display:flex;}
+
+  .toast{
+    position:fixed; left:50%; bottom:90px; transform:translateX(-50%) translateY(10px);
+    background:var(--ink); color:var(--white); font-size:12.5px; font-weight:600;
+    padding:11px 18px; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    z-index:150; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+    max-width:90vw; text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  footer.credit{
+    max-width:900px; margin:10px auto 0; padding:6px 20px 30px; text-align:center;
+    font-size:11px; color:#a9a69c; letter-spacing:.03em;
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    body{padding-bottom:0; background:var(--white);}
+    .progress-shell, .records-bar, .action-bar, .modal-overlay, footer.credit, .sig-actions .btn-link, .callout .icon{display:none !important;}
+    .section{box-shadow:none; border:1px solid #999; break-inside:avoid; margin-bottom:12px;}
+    .field input, .field select, .field textarea{background:transparent; border:none; border-bottom:1px solid #444; border-radius:0; padding:4px 2px;}
+    .pill{border:1px solid #999; background:transparent;}
+    .pill:has(input:checked){background:#eee;}
+    canvas.sig-canvas{height:110px;}
+    a[href]::after{content:"";}
+    .form-header{padding-top:10px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-shell">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-meta">
+    <span><strong id="progressPct">0%</strong> preenchido</span>
+    <span id="saveIndicator"><span class="dot"></span> Rascunho salvo automaticamente</span>
+  </div>
+</div>
+
+<div class="records-bar">
+  <div class="records-bar-inner">
+    <div class="records-bar-name">
+      📁 <span class="who" id="currentRecordName">Novo formulário</span>
+      <span class="status-pill andamento" id="currentRecordStatus">Em andamento</span>
+    </div>
+    <div class="records-bar-actions">
+      <button type="button" class="btn-mini" id="btnOpenRecords">Meus formulários</button>
+      <button type="button" class="btn-mini solid" id="btnNewRecord">+ Novo</button>
+    </div>
+  </div>
+</div>
+
+<div class="form-header">
+  <div class="brandmark">
+    <span class="brand-icon"></span>
+    <span class="brand-text"><span>CONTAB</span><span>MINAS</span></span>
+  </div>
+  <span class="eyebrow">Departamento Pessoal · Admissão</span>
+  <h1>Formulário Admissional</h1>
+  <p>Preencha diretamente na tela — seus dados são salvos automaticamente neste dispositivo a cada campo respondido, permitindo continuar depois de onde parou. Ao final, baixe em PDF, envie por e‑mail ou imprima para preenchimento manual.</p>
+</div>
+
+<form id="admissaoForm" novalidate>
+
+  <!-- 01 EMPRESA -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">01</div>
+      <h2>Dados da Empresa</h2>
+    </div>
+    <div class="section-body">
+      <div class="grid g2">
+        <div class="field" style="grid-column:1/-1;">
+          <label for="empresa">Empresa <span class="req">*</span></label>
+          <input type="text" id="empresa" name="empresa" data-required="true" placeholder="Razão social da empresa" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 EMPREGADO -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">02</div>
+      <h2>Dados do Empregado</h2>
+    </div>
+    <div class="section-body">
+      <div class="grid g2">
+        <div class="field" style="grid-column:1/-1;">
+          <label for="nome">Nome completo <span class="req">*</span></label>
+          <input type="text" id="nome" name="nome" data-required="true" required>
+        </div>
+        <div class="field">
+          <label for="dataNascimento">Data de nascimento <span class="req">*</span></label>
+          <input type="text" id="dataNascimento" name="dataNascimento" data-mask="date" data-required="true" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" required>
+        </div>
+        <div class="field">
+          <label for="estadoCivil">Estado civil</label>
+          <select id="estadoCivil" name="estadoCivil">
+            <option value="">Selecione</option>
+            <option>Solteiro(a)</option>
+            <option>Casado(a)</option>
+            <option>União Estável</option>
+            <option>Divorciado(a)</option>
+            <option>Separado(a)</option>
+            <option>Viúvo(a)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="numFilhos">Nº de filhos</label>
+          <input type="text" id="numFilhos" name="numFilhos" inputmode="numeric" maxlength="2">
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label for="endereco">Endereço <span class="req">*</span></label>
+          <input type="text" id="endereco" name="endereco" data-required="true" placeholder="Rua, número, complemento" required>
+        </div>
+        <div class="field">
+          <label for="bairro">Bairro <span class="req">*</span></label>
+          <input type="text" id="bairro" name="bairro" data-required="true" required>
+        </div>
+        <div class="field">
+          <label for="cidade">Cidade <span class="req">*</span></label>
+          <input type="text" id="cidade" name="cidade" data-required="true" required>
+        </div>
+        <div class="field">
+          <label for="cep">CEP <span class="req">*</span></label>
+          <input type="text" id="cep" name="cep" data-mask="cep" data-required="true" placeholder="00000-000" inputmode="numeric" maxlength="9" required>
+        </div>
+        <div class="field">
+          <label for="telefone">Telefone / WhatsApp <span class="req">*</span></label>
+          <input type="tel" id="telefone" name="telefone" data-mask="phone" data-required="true" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15" required>
+        </div>
+        <div class="field">
+          <label for="email">E‑mail <span class="req">*</span></label>
+          <input type="email" id="email" name="email" data-required="true" placeholder="nome@email.com" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 HORARIO -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">03</div>
+      <h2>Horário de Trabalho</h2>
+    </div>
+    <div class="section-body">
+      <div class="grid g4">
+        <div class="field">
+          <label for="hEntrada">Entrada <span class="req">*</span></label>
+          <input type="text" id="hEntrada" name="horarioEntrada" placeholder="00:00" data-mask="time" data-required="true" inputmode="numeric" maxlength="5" required>
+        </div>
+        <div class="field">
+          <label for="hSaida">Saída <span class="req">*</span></label>
+          <input type="text" id="hSaida" name="horarioSaida" placeholder="00:00" data-mask="time" data-required="true" inputmode="numeric" maxlength="5" required>
+        </div>
+        <div class="field">
+          <label for="intervaloEntrada">Intervalo (entrada)</label>
+          <input type="text" id="intervaloEntrada" name="intervaloEntrada" placeholder="00:00" data-mask="time" inputmode="numeric" maxlength="5">
+        </div>
+        <div class="field">
+          <label for="intervaloSaida">Intervalo (saída)</label>
+          <input type="text" id="intervaloSaida" name="intervaloSaida" placeholder="00:00" data-mask="time" inputmode="numeric" maxlength="5">
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:14px;">
+        <div class="field">
+          <label for="folga">Folga</label>
+          <input type="text" id="folga" name="folga" placeholder="Ex.: Domingo">
+        </div>
+        <div class="field">
+          <label for="sabado">Sábado</label>
+          <input type="text" id="sabado" name="sabado" placeholder="Horário ou &quot;não trabalha&quot;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 CONDICOES ESPECIAIS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">04</div>
+      <h2>Condições Especiais</h2>
+      <span class="hint">Marque o que se aplica e detalhe</span>
+    </div>
+    <div class="section-body">
+      <div class="grid" style="gap:10px;">
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="deficienciaFisica" data-cond-toggle="condDeficiencia"> Deficiência Física</label>
+          <div class="cond-detail" id="condDeficiencia">
+            <label for="deficienciaFisicaDetalhe">Qual deficiência?</label>
+            <input type="text" id="deficienciaFisicaDetalhe" name="deficienciaFisicaDetalhe" placeholder="Ex.: física, auditiva, visual, intelectual...">
+          </div>
+        </div>
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="insalubridade" data-cond-toggle="condInsalubridade"> Insalubridade</label>
+          <div class="cond-detail" id="condInsalubridade">
+            <label for="insalubridadeGrau">Qual percentual / grau?</label>
+            <select id="insalubridadeGrau" name="insalubridadeGrau">
+              <option value="">Selecione</option>
+              <option value="10% - Grau mínimo">10% — Grau mínimo</option>
+              <option value="20% - Grau médio">20% — Grau médio</option>
+              <option value="40% - Grau máximo">40% — Grau máximo</option>
+            </select>
+          </div>
+        </div>
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="adicionalNoturno" data-cond-toggle="condNoturno"> Adicional Noturno</label>
+          <div class="cond-detail" id="condNoturno">
+            <label for="adicionalNoturnoDetalhe">Detalhamento (opcional)</label>
+            <input type="text" id="adicionalNoturnoDetalhe" name="adicionalNoturnoDetalhe" placeholder="Ex.: percentual aplicado, faixa de horário...">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 CONTRATO EXPERIENCIA -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">05</div>
+      <h2>Contrato de Experiência</h2>
+    </div>
+    <div class="section-body">
+      <div class="radio-row">
+        <label class="pill"><input type="radio" name="contratoExperiencia" value="30+60 dias"> 30 + 60 dias</label>
+        <label class="pill"><input type="radio" name="contratoExperiencia" value="45+45 dias"> 45 + 45 dias</label>
+        <label class="pill"><input type="radio" name="contratoExperiencia" value="60+30 dias"> 60 + 30 dias</label>
+        <label class="pill"><input type="radio" name="contratoExperiencia" value="Nenhum"> Nenhum</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 DOCUMENTOS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">06</div>
+      <h2>Relação de Documentos para Contratação</h2>
+      <span class="hint">Marcar o que já foi recebido</span>
+    </div>
+    <div class="section-body">
+      <div class="doc-list">
+        <div class="doc-item"><input type="checkbox" id="doc1" name="doc_ctpsDigital"><label for="doc1">Extrato de Carteira de Trabalho Digital<span class="tag">Obrigatório</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc2" name="doc_atestadoAdmissional"><label for="doc2">Atestado Médico Admissional<span class="tag">Obrigatório</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc3" name="doc_cpfEmpregado"><label for="doc3">Cópia de CPF do Empregado<span class="tag">Obrigatório</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc4" name="doc_comprovanteEndereco"><label for="doc4">Cópia de Comprovante de Endereço<span class="tag">Obrigatório</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc5" name="doc_identidade"><label for="doc5">Cópia de Identidade<span class="tag">Obrigatório</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc6" name="doc_frequenciaEscolarFilhos"><label for="doc6">Comprovante de Frequência Escolar dos Filhos<span class="tag-neutral">&gt; 04 anos</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc7" name="doc_cartaoVacinacaoFilhos"><label for="doc7">Cópia do Cartão de Vacinação dos Filhos<span class="tag-neutral">&lt; 7 anos</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc8" name="doc_cnh"><label for="doc8">Cópia da CNH<span class="tag">Obrigatório para motorista</span></label></div>
+        <div class="doc-item"><input type="checkbox" id="doc9" name="doc_exameToxicologico"><label for="doc9">Exame Toxicológico<span class="tag">Obrigatório motorista</span></label></div>
+      </div>
+
+      <div class="callout">
+        <span class="icon">ℹ️</span>
+        <div><b>Observação — Salário Família:</b> para continuidade do recebimento, todos os anos, nos meses de <b>Maio</b> e <b>Novembro</b>, devem ser apresentados: em Maio, a cópia da caderneta de vacinação dos filhos menores de 7 anos e o comprovante de frequência escolar dos filhos a partir de 4 anos; em Novembro, o comprovante de frequência escolar dos filhos a partir de 4 anos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 ETNIA -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">07</div>
+      <h2>Declaração de Etnia</h2>
+      <span class="hint">Lei nº 14.553/2023</span>
+    </div>
+    <div class="section-body">
+      <div class="callout" style="margin:0 0 16px;">
+        <span class="icon">⚠️</span>
+        <div><b>Atenção:</b> esta declaração deve ser respondida pelo(a) próprio(a) empregado(a). Trata-se de uma <b>autodeclaração</b> pessoal e intransferível — nenhuma outra pessoa (inclusive o RH ou o empregador) pode preenchê-la em nome do empregado.</div>
+      </div>
+      <div class="etnia-text">
+        Eu, <input type="text" name="etniaNome" placeholder="nome completo" style="min-width:220px;">,
+        abaixo assinado(a), de nacionalidade <input type="text" name="etniaNacionalidade" placeholder="nacionalidade" style="min-width:120px;">,
+        nascido(a) em <input type="text" name="etniaNascimento" data-mask="date" placeholder="dd/mm/aaaa" style="min-width:100px;" maxlength="10">,
+        portador(a) do CPF nº <input type="text" name="etniaCpf" data-mask="cpf" placeholder="000.000.000-00" style="min-width:140px;" maxlength="14" data-required="true">,
+        sob as penas da <b>Lei nº 14.553, de 20 de abril de 2023</b>, me autodeclaro:
+      </div>
+
+      <div class="radio-row" style="margin-top:14px;">
+        <label class="pill"><input type="radio" name="etnia" value="Branca"> Branca</label>
+        <label class="pill"><input type="radio" name="etnia" value="Preta"> Preta</label>
+        <label class="pill"><input type="radio" name="etnia" value="Parda"> Parda</label>
+        <label class="pill"><input type="radio" name="etnia" value="Amarela"> Amarela</label>
+        <label class="pill"><input type="radio" name="etnia" value="Indígena"> Indígena</label>
+      </div>
+
+      <div class="grid g2" style="margin-top:16px;">
+        <div class="field">
+          <label for="localFirma">Local</label>
+          <input type="text" id="localFirma" name="etniaLocal" placeholder="Varginha">
+        </div>
+        <div class="field">
+          <label for="dataFirma">Data</label>
+          <input type="text" id="dataFirma" name="etniaData" data-mask="date" placeholder="dd/mm/aaaa" maxlength="10">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 ASSINATURAS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-num">08</div>
+      <h2>Assinaturas</h2>
+      <span class="hint">Digital (mouse/toque) ou impressa</span>
+    </div>
+    <div class="section-body">
+      <div class="grid g2">
+        <div class="sig-block">
+          <label style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#3d3b36;">Assinatura do Empregador</label>
+          <div class="sig-canvas-wrap">
+            <canvas class="sig-canvas" id="sigEmpregador"></canvas>
+            <div class="sig-placeholder" id="sigEmpregadorPlaceholder">assine aqui</div>
+          </div>
+          <div class="sig-actions">
+            <span class="sig-caption">Ou deixe em branco para assinar na versão impressa</span>
+            <button type="button" class="btn-link" data-clear-sig="sigEmpregador">Limpar</button>
+          </div>
+        </div>
+        <div class="sig-block">
+          <label style="font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#3d3b36;">Assinatura do Empregado</label>
+          <div class="sig-canvas-wrap">
+            <canvas class="sig-canvas" id="sigEmpregado"></canvas>
+            <div class="sig-placeholder" id="sigEmpregadoPlaceholder">assine aqui</div>
+          </div>
+          <div class="sig-actions">
+            <span class="sig-caption">Ou deixe em branco para assinar na versão impressa</span>
+            <button type="button" class="btn-link" data-clear-sig="sigEmpregado">Limpar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>
+
+<footer class="credit"><strong style="color:var(--ink);">CONTAB MINAS</strong> · Rua Maria Margarida Paiva, 166 — Residencial Portinari — Varginha/MG · CEP 37061-864</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <div class="action-inner">
+    <button type="button" class="btn btn-primary" id="btnPdf">⬇ Baixar em PDF</button>
+    <button type="button" class="btn btn-outline" id="btnEmail">✉ Enviar por e‑mail</button>
+    <button type="button" class="btn btn-gold" id="btnPrint" title="Baixa um PDF em branco, com todos os campos vazios, para imprimir e preencher à mão">🖨 Imprimir (em branco)</button>
+    <button type="button" class="btn btn-ghost" id="btnClear">Limpar formulário</button>
+  </div>
+</div>
+
+<!-- MODAL: EMAIL -->
+<div class="modal-overlay hidden" id="emailModalOverlay">
+  <div class="modal">
+    <button class="close-x" data-close-modal="emailModalOverlay">✕</button>
+    <h3>Enviar por e‑mail</h3>
+    <p class="desc">Informe o e‑mail do RH/empresa. Ao clicar em "Abrir aplicativo de e‑mail", o PDF do formulário é baixado automaticamente e seu programa de e‑mail padrão abre com um resumo pré‑preenchido — é só anexar o PDF baixado.</p>
+    <div class="field">
+      <label for="hrEmail">E‑mail de destino <span class="req">*</span></label>
+      <input type="email" id="hrEmail" placeholder="rh@empresa.com">
+    </div>
+    <div class="banner-ok" id="emailWarning" style="background:#FBEAE8;border-color:#EBC3BE;color:var(--danger);">Informe um e‑mail válido antes de continuar.</div>
+    <div class="banner-ok" id="emailCopiedBanner">✓ Resumo copiado — cole no corpo do seu e‑mail.</div>
+    <p class="desc" style="margin-top:12px;">Se o link não abrir seu programa de e‑mail automaticamente (comum em algumas visualizações), use "Copiar resumo" e cole manualmente num e‑mail novo endereçado ao destinatário informado.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="copyEmailSummary">Copiar resumo</button>
+      <a href="#" class="btn btn-primary" id="confirmEmail">Abrir aplicativo de e‑mail</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRM (custom, since window.confirm() can be blocked in sandboxed previews) -->
+<div class="modal-overlay hidden" id="confirmModalOverlay">
+  <div class="modal" style="max-width:400px;">
+    <h3 id="confirmModalTitle">Confirmar ação</h3>
+    <p class="desc" id="confirmModalMessage">Tem certeza?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="confirmModalCancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="confirmModalOk" style="background:var(--danger);">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RECORDS LIST -->
+<div class="modal-overlay hidden records-modal" id="recordsModalOverlay">
+  <div class="modal">
+    <button class="close-x" data-close-modal="recordsModalOverlay">✕</button>
+    <h3>Meus formulários</h3>
+    <p class="desc">Cada empregado cadastrado fica salvo separadamente neste dispositivo — inclusive os que ainda estão em andamento e não foram enviados.</p>
+    <div class="records-toolbar">
+      <div class="records-tabs" id="recordsTabs">
+        <button type="button" data-filter="todos" class="active">Todos</button>
+        <button type="button" data-filter="andamento">Em andamento</button>
+        <button type="button" data-filter="enviado">Enviados</button>
+      </div>
+      <button type="button" class="btn btn-gold" style="margin-left:auto;" id="btnNewRecordModal">+ Novo formulário</button>
+    </div>
+    <div id="recordsList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var INDEX_KEY = "cm_admissao_records_index_v1";
+  var CURRENT_KEY = "cm_admissao_current_record_id_v1";
+  var form = document.getElementById("admissaoForm");
+  var saveIndicator = document.getElementById("saveIndicator");
+  var currentId = null;
+
+  /* ---------------- Record storage helpers ---------------- */
+  function uid(){ return "r_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,7); }
+  function recordKey(id){ return "cm_admissao_record_" + id; }
+  function sigKey(id, who){ return "cm_admissao_sig_" + id + "_" + who; }
+
+  function getIndex(){
+    try{ return JSON.parse(localStorage.getItem(INDEX_KEY)) || []; }catch(e){ return []; }
+  }
+  function setIndex(arr){ localStorage.setItem(INDEX_KEY, JSON.stringify(arr)); }
+  function getEntry(id){ return getIndex().find(function(r){ return r.id === id; }); }
+  function upsertEntry(entry){
+    var idx = getIndex();
+    var pos = idx.findIndex(function(r){ return r.id === entry.id; });
+    if(pos === -1){ idx.unshift(entry); } else { idx[pos] = Object.assign({}, idx[pos], entry); }
+    setIndex(idx);
+  }
+  function removeEntry(id){
+    setIndex(getIndex().filter(function(r){ return r.id !== id; }));
+    localStorage.removeItem(recordKey(id));
+    localStorage.removeItem(sigKey(id, "empregador"));
+    localStorage.removeItem(sigKey(id, "empregado"));
+  }
+
+  /* ---------------- Masks ---------------- */
+  function onlyDigits(v){ return v.replace(/\D/g, ""); }
+
+  function maskCPF(v){
+    v = onlyDigits(v).slice(0,11);
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d)/, "$1.$2");
+    v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    return v;
+  }
+  function maskPhone(v){
+    v = onlyDigits(v).slice(0,11);
+    if(v.length > 10){
+      v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+    } else if(v.length > 5){
+      v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+    } else if(v.length > 2){
+      v = v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+    } else {
+      v = v.replace(/(\d{0,2})/, "($1");
+    }
+    return v.trim();
+  }
+  function maskCEP(v){
+    v = onlyDigits(v).slice(0,8);
+    v = v.replace(/(\d{5})(\d{1,3})$/, "$1-$2");
+    return v;
+  }
+  function maskDate(v){
+    v = onlyDigits(v).slice(0,8);
+    v = v.replace(/(\d{2})(\d)/, "$1/$2");
+    v = v.replace(/(\d{2})(\d{1,4})$/, "$1/$2");
+    return v;
+  }
+  function maskTime(v){
+    v = onlyDigits(v).slice(0,4);
+    if(v.length > 2){ v = v.replace(/(\d{2})(\d{1,2})/, "$1:$2"); }
+    return v;
+  }
+  var MASKS = { cpf:maskCPF, phone:maskPhone, cep:maskCEP, date:maskDate, time:maskTime };
+
+  document.querySelectorAll("[data-mask]").forEach(function(el){
+    var fn = MASKS[el.getAttribute("data-mask")];
+    if(!fn) return;
+    el.addEventListener("input", function(){
+      var pos = el.selectionStart;
+      var before = el.value.length;
+      el.value = fn(el.value);
+      var after = el.value.length;
+      try{ el.selectionEnd = pos + (after - before); }catch(e){}
+    });
+  });
+
+  /* ---------------- Autosave ---------------- */
+  function serialize(){
+    var data = {};
+    Array.prototype.forEach.call(form.elements, function(el){
+      if(!el.name) return;
+      if(el.type === "checkbox"){ data[el.name] = el.checked; }
+      else if(el.type === "radio"){ if(el.checked) data[el.name] = el.value; }
+      else { data[el.name] = el.value; }
+    });
+    return data;
+  }
+
+  function fillForm(data){
+    data = data || {};
+    Array.prototype.forEach.call(form.elements, function(el){
+      if(!el.name) return;
+      if(el.type === "checkbox"){ el.checked = !!data[el.name]; }
+      else if(el.type === "radio"){ el.checked = (el.value === data[el.name]); }
+      else { el.value = data[el.name] || ""; }
+    });
+    updateConditionalVisibility();
+  }
+
+  var saveTimer = null;
+  function save(){
+    if(!currentId) return;
+    var data = serialize();
+    localStorage.setItem(recordKey(currentId), JSON.stringify(data));
+    var entry = getEntry(currentId) || { id: currentId, status: "andamento", createdAt: new Date().toISOString() };
+    entry.nome = data.nome || "";
+    entry.empresa = data.empresa || "";
+    entry.updatedAt = new Date().toISOString();
+    upsertEntry(entry);
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2,"0");
+    var mm = String(now.getMinutes()).padStart(2,"0");
+    saveIndicator.innerHTML = '<span class="dot"></span> Salvo às ' + hh + ":" + mm;
+    updateProgress();
+    updateRecordBar();
+  }
+  function queueSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 250);
+  }
+  form.addEventListener("input", queueSave);
+  form.addEventListener("change", queueSave);
+
+  /* ---------------- Conditional detail fields ---------------- */
+  function updateConditionalVisibility(){
+    document.querySelectorAll("[data-cond-toggle]").forEach(function(chk){
+      var target = document.getElementById(chk.getAttribute("data-cond-toggle"));
+      if(target) target.classList.toggle("show", chk.checked);
+    });
+  }
+  document.querySelectorAll("[data-cond-toggle]").forEach(function(chk){
+    chk.addEventListener("change", updateConditionalVisibility);
+  });
+
+  /* ---------------- Progress ---------------- */
+  function updateProgress(){
+    var required = form.querySelectorAll("[data-required='true']");
+    var filled = 0;
+    required.forEach(function(el){ if(el.value && el.value.trim().length) filled++; });
+    var pct = required.length ? Math.round((filled / required.length) * 100) : 0;
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressPct").textContent = pct + "%";
+  }
+
+  /* ---------------- Signature pads (per-record) ---------------- */
+  var signaturePads = {};
+  function setupSignaturePad(canvasId, placeholderId, who){
+    var canvas = document.getElementById(canvasId);
+    var placeholder = document.getElementById(placeholderId);
+    var ctx = canvas.getContext("2d");
+    var drawing = false;
+    var hasContent = false;
+
+    function resize(){
+      var ratio = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+      var prevData = hasContent ? canvas.toDataURL() : null;
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.scale(ratio, ratio);
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#161616";
+      if(prevData){
+        var img = new Image();
+        img.onload = function(){ ctx.drawImage(img, 0, 0, rect.width, rect.height); };
+        img.src = prevData;
+      }
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    function pos(e){
+      var rect = canvas.getBoundingClientRect();
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+    function start(e){
+      drawing = true; hasContent = true;
+      placeholder.style.display = "none";
+      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+      e.preventDefault();
+    }
+    function move(e){
+      if(!drawing) return;
+      var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke();
+      e.preventDefault();
+    }
+    function end(){
+      if(!drawing) return;
+      drawing = false;
+      if(currentId) localStorage.setItem(sigKey(currentId, who), canvas.toDataURL());
+    }
+    canvas.addEventListener("mousedown", start);
+    canvas.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    canvas.addEventListener("touchstart", start, {passive:false});
+    canvas.addEventListener("touchmove", move, {passive:false});
+    canvas.addEventListener("touchend", end);
+
+    function clearPad(removeStorage){
+      var rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0,0,rect.width, rect.height);
+      hasContent = false;
+      placeholder.style.display = "flex";
+      if(removeStorage && currentId) localStorage.removeItem(sigKey(currentId, who));
+    }
+    document.querySelector('[data-clear-sig="'+canvasId+'"]').addEventListener("click", function(){
+      clearPad(true);
+    });
+
+    function reload(){
+      clearPad(false);
+      if(!currentId) return;
+      var saved = localStorage.getItem(sigKey(currentId, who));
+      if(saved){
+        var img2 = new Image();
+        img2.onload = function(){
+          var rect = canvas.getBoundingClientRect();
+          ctx.drawImage(img2, 0, 0, rect.width, rect.height);
+          hasContent = true;
+          placeholder.style.display = "none";
+        };
+        img2.src = saved;
+      }
+    }
+    signaturePads[who] = { reload: reload, clear: function(){ clearPad(true); } };
+  }
+  setupSignaturePad("sigEmpregador", "sigEmpregadorPlaceholder", "empregador");
+  setupSignaturePad("sigEmpregado", "sigEmpregadoPlaceholder", "empregado");
+
+  /* ---------------- Modals ---------------- */
+  function openModal(id){ document.getElementById(id).classList.remove("hidden"); }
+  function closeModal(id){ document.getElementById(id).classList.add("hidden"); }
+  document.querySelectorAll("[data-close-modal]").forEach(function(btn){
+    btn.addEventListener("click", function(){ closeModal(btn.getAttribute("data-close-modal")); });
+  });
+
+  /* Custom confirm dialog (window.confirm() can be silently blocked in sandboxed iframe previews) */
+  var confirmOkBtn = document.getElementById("confirmModalOk");
+  var confirmCancelBtn = document.getElementById("confirmModalCancel");
+  function askConfirm(message, onYes, title){
+    document.getElementById("confirmModalTitle").textContent = title || "Confirmar ação";
+    document.getElementById("confirmModalMessage").textContent = message;
+    openModal("confirmModalOverlay");
+    var cleanup = function(){
+      confirmOkBtn.removeEventListener("click", onOk);
+      confirmCancelBtn.removeEventListener("click", onCancel);
+    };
+    function onOk(){ cleanup(); closeModal("confirmModalOverlay"); onYes(); }
+    function onCancel(){ cleanup(); closeModal("confirmModalOverlay"); }
+    confirmOkBtn.addEventListener("click", onOk);
+    confirmCancelBtn.addEventListener("click", onCancel);
+  }
+
+  /* ---------------- Toast (non-blocking feedback; alert() can be blocked too) ---------------- */
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function showToast(message, duration){
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, duration || 4000);
+  }
+
+  /* ---------------- PDF generation (hand-written, zero dependencies) ----------------
+     Builds real PDF bytes directly (PDF 1.4 spec: catalog, pages, standard
+     Helvetica font, plain text/line/rect drawing operators) and triggers a
+     native browser download via Blob + <a download>. No external library, no
+     CDN request, no eval()/Function() anywhere — this avoids both the CDN
+     failure modes AND the content-security blocking that large bundled
+     libraries can trigger in restricted previews. */
+  var PDF_PAGE_W = 595.28, PDF_PAGE_H = 841.89; // A4 in points
+
+  function pdfWinAnsi(str){
+    // Map a few common typographic characters into WinAnsiEncoding (cp1252);
+    // Latin-1 accented letters (used throughout Portuguese) map 1:1 already.
+    var special = { 0x2014:0x97, 0x2013:0x96, 0x2018:0x91, 0x2019:0x92, 0x201C:0x93, 0x201D:0x94, 0x2022:0x95, 0x00A0:0x20 };
+    var out = "";
+    str = String(str == null ? "" : str);
+    for(var i=0;i<str.length;i++){
+      var code = str.charCodeAt(i);
+      if(special[code] !== undefined) code = special[code];
+      if(code > 255) code = 63; // '?' fallback for unsupported glyphs
+      var ch = String.fromCharCode(code);
+      if(ch === "(" || ch === ")" || ch === "\\"){ out += "\\" + ch; }
+      else { out += ch; }
+    }
+    return out;
+  }
+
+  function pdfTextWidth(str, size, bold){
+    // Rough average-width estimate for Helvetica (good enough for wrapping/fit checks)
+    return String(str).length * size * (bold ? 0.58 : 0.52);
+  }
+
+  function pdfWrap(str, maxWidth, size, bold){
+    var words = String(str || "").split(/\s+/).filter(Boolean);
+    if(!words.length) return [""];
+    var lines = [], cur = "";
+    words.forEach(function(w){
+      var test = cur ? cur + " " + w : w;
+      if(pdfTextWidth(test, size, bold) > maxWidth && cur){
+        lines.push(cur); cur = w;
+      } else { cur = test; }
+    });
+    if(cur) lines.push(cur);
+    return lines;
+  }
+
+  function createPdfBuilder(){
+    var pages = [[]]; // array of pages, each an array of content-stream op strings
+    function ops(){ return pages[pages.length - 1]; }
+    return {
+      newPage: function(){ pages.push([]); },
+      pageCount: function(){ return pages.length; },
+      text: function(str, x, yTop, opts){
+        opts = opts || {};
+        var size = opts.size || 10.5;
+        var bold = !!opts.bold;
+        var color = opts.color || [20,20,20];
+        var yPdf = PDF_PAGE_H - yTop;
+        ops().push(
+          (color[0]/255).toFixed(3) + " " + (color[1]/255).toFixed(3) + " " + (color[2]/255).toFixed(3) + " rg " +
+          "BT /" + (bold ? "FB" : "FR") + " " + size + " Tf 1 0 0 1 " + x.toFixed(2) + " " + yPdf.toFixed(2) + " Tm (" + pdfWinAnsi(str) + ") Tj ET"
+        );
+      },
+      rectFill: function(x, yTop, w, h, color){
+        var yPdf = PDF_PAGE_H - yTop - h;
+        ops().push((color[0]/255).toFixed(3) + " " + (color[1]/255).toFixed(3) + " " + (color[2]/255).toFixed(3) + " rg " +
+          x.toFixed(2) + " " + yPdf.toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re f");
+      },
+      rectStroke: function(x, yTop, w, h, color){
+        var yPdf = PDF_PAGE_H - yTop - h;
+        ops().push("0.4 w " + (color[0]/255).toFixed(3) + " " + (color[1]/255).toFixed(3) + " " + (color[2]/255).toFixed(3) + " RG " +
+          x.toFixed(2) + " " + yPdf.toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re S");
+      },
+      line: function(x1, y1Top, x2, y2Top, color, width){
+        var y1 = PDF_PAGE_H - y1Top, y2 = PDF_PAGE_H - y2Top;
+        ops().push((width || 0.5) + " w " + (color[0]/255).toFixed(3) + " " + (color[1]/255).toFixed(3) + " " + (color[2]/255).toFixed(3) + " RG " +
+          x1.toFixed(2) + " " + y1.toFixed(2) + " m " + x2.toFixed(2) + " " + y2.toFixed(2) + " l S");
+      },
+      build: function(){
+        var n = pages.length;
+        var pageObjNum = [], contentObjNum = [];
+        for(var i=0;i<n;i++){ pageObjNum.push(5+i); contentObjNum.push(5+n+i); }
+        var objs = {};
+        objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+        objs[2] = "<< /Type /Pages /Kids [" + pageObjNum.map(function(x){return x+" 0 R";}).join(" ") + "] /Count " + n + " >>";
+        objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+        objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+        for(i=0;i<n;i++){
+          objs[pageObjNum[i]] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PDF_PAGE_W.toFixed(2) + " " + PDF_PAGE_H.toFixed(2) + "] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents " + contentObjNum[i] + " 0 R >>";
+          var stream = pages[i].join("\n");
+          objs[contentObjNum[i]] = { stream: stream };
+        }
+        var totalObjs = 5 + 2*n - 1;
+        var out = "%PDF-1.4\n";
+        var offsets = [0];
+        for(var num=1; num<=totalObjs; num++){
+          offsets[num] = out.length;
+          var body = objs[num];
+          if(body && typeof body === "object" && "stream" in body){
+            var s = body.stream;
+            out += num + " 0 obj\n<< /Length " + s.length + " >>\nstream\n" + s + "\nendstream\nendobj\n";
+          } else {
+            out += num + " 0 obj\n" + body + "\nendobj\n";
+          }
+        }
+        var xrefStart = out.length;
+        out += "xref\n0 " + (totalObjs + 1) + "\n";
+        out += "0000000000 65535 f \n";
+        for(num=1; num<=totalObjs; num++){
+          out += String(offsets[num]).padStart(10, "0") + " 00000 n \n";
+        }
+        out += "trailer\n<< /Size " + (totalObjs + 1) + " /Root 1 0 R >>\nstartxref\n" + xrefStart + "\n%%EOF";
+        // Convert the byte-safe string (all char codes 0-255) into a real Uint8Array
+        var bytes = new Uint8Array(out.length);
+        for(var i2=0; i2<out.length; i2++){ bytes[i2] = out.charCodeAt(i2) & 0xFF; }
+        return bytes;
+      }
+    };
+  }
+
+  var TEAL = [228,33,47], GOLD = [35,31,32], GRAY = [120,120,120], LINE_GRAY = [220,216,207], INK = [20,20,20];
+
+  function buildPdfBytes(blank){
+    var data = blank ? {} : serialize();
+    var pdf = createPdfBuilder();
+    var margin = 45;
+    var maxY = 782;
+    var y = 90;
+
+    function drawFooter(){
+      pdf.line(margin, 808, PDF_PAGE_W - margin, 808, LINE_GRAY, 0.5);
+      pdf.text("Contab Minas · Rua Maria Margarida Paiva, 166 — Residencial Portinari — Varginha/MG · CEP 37061-864", margin, 820, { size: 7.5, color: GRAY });
+    }
+    function checkPageBreak(extra){
+      if(y + (extra || 20) > maxY){ drawFooter(); pdf.newPage(); y = margin; }
+    }
+    function h2(text){
+      checkPageBreak(30);
+      y += 6;
+      pdf.text(text, margin, y, { size: 12.5, bold: true, color: TEAL });
+      y += 6;
+      pdf.line(margin, y, PDF_PAGE_W - margin, y, LINE_GRAY, 0.6);
+      y += 12;
+    }
+    function field(label, value){
+      checkPageBreak(26);
+      pdf.text(String(label).toUpperCase(), margin, y, { size: 8, bold: true, color: GRAY });
+      if(blank){
+        pdf.line(margin, y + 15, PDF_PAGE_W - margin, y + 15, LINE_GRAY, 0.6);
+      } else {
+        pdf.text((value && String(value).trim()) ? String(value) : "—", margin, y + 13, { size: 10.5, color: INK });
+      }
+      y += 26;
+    }
+    function fieldsRow(pairs){
+      checkPageBreak(26);
+      var colWidth = (PDF_PAGE_W - margin*2) / pairs.length;
+      pairs.forEach(function(p, i){
+        var x = margin + i*colWidth;
+        pdf.text(String(p[0]).toUpperCase(), x, y, { size: 8, bold: true, color: GRAY });
+        if(blank){
+          pdf.line(x, y + 15, x + colWidth - 14, y + 15, LINE_GRAY, 0.6);
+        } else {
+          var val = (p[1] && String(p[1]).trim()) ? String(p[1]) : "—";
+          pdf.text(val, x, y + 13, { size: 10.5, color: INK });
+        }
+      });
+      y += 26;
+    }
+    function checkline(label, checked){
+      var lines = pdfWrap(label, PDF_PAGE_W - margin*2 - 22, 9.5, false);
+      checkPageBreak(lines.length * 14 + 4);
+      pdf.text(checked ? "[X]" : "[   ]", margin, y, { size: 9.5, color: INK });
+      lines.forEach(function(ln, i){
+        pdf.text(ln, margin + 22, y + i*13, { size: 9.5, color: INK });
+      });
+      y += lines.length * 13 + 5;
+    }
+    function checklineWithNote(label, checked, notePlaceholder){
+      checkline(label, checked);
+      if(blank && notePlaceholder){
+        checkPageBreak(16);
+        var prefix = notePlaceholder + ": ";
+        pdf.text(prefix, margin + 22, y, { size: 8, color: GRAY });
+        var lineStartX = margin + 22 + pdfTextWidth(prefix, 8, false) + 4;
+        pdf.line(lineStartX, y + 1, PDF_PAGE_W - margin, y + 1, LINE_GRAY, 0.5);
+        y += 14;
+      }
+    }
+    function calloutBox(text, opts){
+      opts = opts || {};
+      var bg = opts.bg || [246,235,216];
+      var border = opts.border || [233,211,164];
+      var textColor = opts.textColor || [92,74,36];
+      var pad = 10;
+      var lines = pdfWrap(text, PDF_PAGE_W - margin*2 - pad*2, 9, false);
+      var lineH = 12.5;
+      var boxH = lines.length * lineH + pad*2;
+      checkPageBreak(boxH + 14);
+      pdf.rectFill(margin, y, PDF_PAGE_W - margin*2, boxH, bg);
+      pdf.rectStroke(margin, y, PDF_PAGE_W - margin*2, boxH, border);
+      lines.forEach(function(ln, i){
+        pdf.text(ln, margin + pad, y + pad + (i+1)*lineH - 4, { size: 9, color: textColor });
+      });
+      y += boxH + 16;
+    }
+    function paragraph(text, opts){
+      opts = opts || {};
+      var size = opts.size || 10;
+      var lines = pdfWrap(text, PDF_PAGE_W - margin*2, size, false);
+      var lineH = size + 4;
+      checkPageBreak(lines.length * lineH + 6);
+      lines.forEach(function(ln, i){
+        pdf.text(ln, margin, y + i*lineH, { size: size, color: opts.color || INK });
+      });
+      y += lines.length * lineH + 10;
+    }
+
+    // Header band
+    pdf.rectFill(0, 0, PDF_PAGE_W, 62, TEAL);
+    pdf.text("FORMULÁRIO ADMISSIONAL", margin, 34, { size: 18, bold: true, color: [255,255,255] });
+    pdf.text(blank ? "Contab Minas — formulário em branco para preenchimento manual" : (data.empresa ? ("Empresa: " + data.empresa) : "Contab Minas — Departamento Pessoal"), margin, 52, { size: 10, color: [250,225,227] });
+
+    h2("01 · Dados da Empresa");
+    field("Empresa", data.empresa);
+
+    h2("02 · Dados do Empregado");
+    field("Nome completo", data.nome);
+    fieldsRow([["Data de nascimento", data.dataNascimento], ["Estado civil", data.estadoCivil], ["Nº de filhos", data.numFilhos]]);
+    field("Endereço", data.endereco);
+    fieldsRow([["Bairro", data.bairro], ["Cidade", data.cidade], ["CEP", data.cep]]);
+    fieldsRow([["Telefone / WhatsApp", data.telefone], ["E-mail", data.email]]);
+
+    h2("03 · Horário de Trabalho");
+    fieldsRow([["Entrada", data.horarioEntrada], ["Saída", data.horarioSaida], ["Intervalo (entrada)", data.intervaloEntrada], ["Intervalo (saída)", data.intervaloSaida]]);
+    fieldsRow([["Folga", data.folga], ["Sábado", data.sabado]]);
+
+    h2("04 · Condições Especiais");
+    checklineWithNote("Deficiência Física" + ((data.deficienciaFisica && data.deficienciaFisicaDetalhe) ? " — " + data.deficienciaFisicaDetalhe : ""), data.deficienciaFisica, "Qual deficiência");
+    checklineWithNote("Insalubridade" + ((data.insalubridade && data.insalubridadeGrau) ? " — " + data.insalubridadeGrau : ""), data.insalubridade, "Qual percentual / grau");
+    checklineWithNote("Adicional Noturno" + ((data.adicionalNoturno && data.adicionalNoturnoDetalhe) ? " — " + data.adicionalNoturnoDetalhe : ""), data.adicionalNoturno, "Detalhamento");
+
+    h2("05 · Contrato de Experiência");
+    document.querySelectorAll('input[name="contratoExperiencia"]').forEach(function(radio){
+      var labelEl = radio.closest("label");
+      var label = labelEl ? labelEl.textContent.replace(/\s+/g, " ").trim() : radio.value;
+      checkline(label, !blank && radio.checked);
+    });
+
+    h2("06 · Relação de Documentos para Contratação");
+    document.querySelectorAll(".doc-item").forEach(function(item){
+      var chk = item.querySelector("input[type='checkbox']");
+      var labelEl = item.querySelector("label");
+      var tagEl = labelEl.querySelector(".tag, .tag-neutral");
+      var tagText = tagEl ? tagEl.textContent.replace(/\s+/g, " ").trim() : "";
+      var mainText = (labelEl.childNodes[0] ? labelEl.childNodes[0].textContent : labelEl.textContent).replace(/\s+/g, " ").trim();
+      var label = mainText + (tagText ? " — " + tagText : "");
+      checkline(label, !blank && chk && chk.checked);
+    });
+    y += 4;
+    calloutBox("Observação — Salário Família: para continuidade do recebimento, todos os anos, nos meses de Maio e Novembro, devem ser apresentados: em Maio, a cópia da caderneta de vacinação dos filhos menores de 7 anos e o comprovante de frequência escolar dos filhos a partir de 4 anos; em Novembro, o comprovante de frequência escolar dos filhos a partir de 4 anos.");
+
+    h2("07 · Declaração de Etnia (Lei nº 14.553/2023)");
+    calloutBox("Atenção: esta declaração deve ser respondida pelo(a) próprio(a) empregado(a). Trata-se de uma autodeclaração pessoal e intransferível — nenhuma outra pessoa (inclusive o RH ou o empregador) pode preenchê-la em nome do empregado.");
+    var etniaSentence = "Eu, " + (data.etniaNome || "_______________________________________") +
+      ", abaixo assinado(a), de nacionalidade " + (data.etniaNacionalidade || "______________") +
+      ", nascido(a) em " + (data.etniaNascimento || "__/__/____") +
+      ", portador(a) do CPF nº " + (data.etniaCpf || "______________") +
+      ", sob as penas da Lei nº 14.553, de 20 de abril de 2023, me autodeclaro: " +
+      (data.etnia ? data.etnia.toUpperCase() : "(não selecionado)") + ".";
+    paragraph(etniaSentence, { size: 10.5 });
+    fieldsRow([["Local", data.etniaLocal], ["Data", data.etniaData]]);
+
+    h2("08 · Assinaturas");
+    checkPageBreak(90);
+    var sigW = (PDF_PAGE_W - margin*2 - 20) / 2;
+    var boxY = y + 14, boxH = 60;
+    pdf.text("EMPREGADOR", margin, y, { size: 8, bold: true, color: GRAY });
+    pdf.text("EMPREGADO", margin + sigW + 20, y, { size: 8, bold: true, color: GRAY });
+    pdf.rectStroke(margin, boxY, sigW, boxH, LINE_GRAY);
+    pdf.rectStroke(margin + sigW + 20, boxY, sigW, boxH, LINE_GRAY);
+    y = boxY + boxH + 24;
+    drawFooter();
+
+    var bytes = pdf.build();
+    return bytes;
+  }
+
+  function slugify(text){
+    return (text || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  }
+
+  function downloadPdf(blank){
+    if(!blank) save();
+    try{
+      var bytes = buildPdfBytes(blank);
+      var blob = new Blob([bytes], { type: "application/pdf" });
+      var filename;
+      if(blank){
+        filename = "formulario_admissional_contabminas_em_branco.pdf";
+      } else {
+        var nome = document.getElementById("nome").value;
+        filename = (slugify(nome) || "formulario_admissional_contabminas") + ".pdf";
+      }
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      return filename;
+    }catch(err){
+      console.error("Falha ao gerar PDF:", err);
+      showToast("Não foi possível gerar o PDF. Tente novamente em alguns segundos.", 6000);
+      return null;
+    }
+  }
+
+  document.getElementById("btnPdf").addEventListener("click", function(){
+    var filename = downloadPdf(false);
+    if(filename) showToast("PDF baixado: " + filename, 4000);
+  });
+
+  /* ---------------- Imprimir (formulário em branco) ----------------
+     Gera e baixa um PDF do formulário totalmente em branco — todos os campos
+     vazios, checkboxes desmarcados — para o cliente imprimir e preencher à
+     mão. Usa o mesmo gerador/baixador confiável do botão "Baixar em PDF"
+     (não depende de window.print(), que pode ser bloqueado em pré‑visualizações
+     restritas). O preenchimento digital já feito neste dispositivo NÃO é
+     alterado — este PDF é só uma cópia em branco para impressão manual. */
+  document.getElementById("btnPrint").addEventListener("click", function(){
+    var filename = downloadPdf(true);
+    if(filename) showToast("PDF em branco baixado: " + filename + " — abra o arquivo e imprima.", 5000);
+  });
+
+  /* ---------------- Email ----------------
+     Downloads the PDF first (guaranteed, via jsPDF above), then tries to open
+     the user's mail client through a real <a href="mailto:..."> click — the
+     most reliable way to trigger navigation across browsers and previews.
+     "Copiar resumo" is a fallback for devices with no mail client configured. */
+  function buildEmailContent(){
+    var data = serialize();
+    var subject = "Formulário Admissional — " + (data.nome || "Novo colaborador");
+    var body = [
+      "Formulário admissional preenchido:",
+      "",
+      "Empresa: " + (data.empresa || "-"),
+      "Nome: " + (data.nome || "-"),
+      "Data de nascimento: " + (data.dataNascimento || "-"),
+      "Endereço: " + (data.endereco || "-") + ", " + (data.bairro || "-") + " - " + (data.cidade || "-") + " " + (data.cep || "-"),
+      "Telefone: " + (data.telefone || "-"),
+      "E-mail: " + (data.email || "-"),
+      "Horário: " + (data.horarioEntrada || "-") + " às " + (data.horarioSaida || "-"),
+      "Contrato de experiência: " + (data.contratoExperiencia || "-"),
+      "",
+      "Obs.: o PDF foi baixado automaticamente ao clicar em \"Abrir aplicativo de e-mail\" — anexe-o a este e-mail antes de enviar."
+    ].join("\n");
+    return { subject: subject, body: body };
+  }
+
+  document.getElementById("btnEmail").addEventListener("click", function(){
+    document.getElementById("emailWarning").classList.remove("show");
+    document.getElementById("emailCopiedBanner").classList.remove("show");
+    openModal("emailModalOverlay");
+  });
+
+  var emailLink = document.getElementById("confirmEmail");
+  emailLink.addEventListener("click", function(e){
+    var emailInput = document.getElementById("hrEmail");
+    var warning = document.getElementById("emailWarning");
+    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!re.test(emailInput.value)){
+      e.preventDefault();
+      warning.classList.add("show");
+      return;
+    }
+    warning.classList.remove("show");
+    downloadPdf();
+    var content = buildEmailContent();
+    var mailto = "mailto:" + encodeURIComponent(emailInput.value) +
+      "?subject=" + encodeURIComponent(content.subject) +
+      "&body=" + encodeURIComponent(content.body);
+    emailLink.setAttribute("href", mailto);
+    setStatus(currentId, "enviado");
+    // Não chamamos e.preventDefault(): o próprio clique do usuário neste link
+    // real é o que faz o navegador abrir o aplicativo de e-mail em seguida.
+    setTimeout(function(){ closeModal("emailModalOverlay"); }, 200);
+  });
+
+  document.getElementById("copyEmailSummary").addEventListener("click", function(){
+    var content = buildEmailContent();
+    var text = "Assunto: " + content.subject + "\n\n" + content.body;
+    navigator.clipboard.writeText(text).then(function(){
+      document.getElementById("emailCopiedBanner").classList.add("show");
+    }).catch(function(){
+      showToast("Não foi possível copiar automaticamente. Selecione e copie o texto manualmente.", 5000);
+    });
+  });
+
+  /* ---------------- Clear current record (keeps it in the list, blank) ---------------- */
+  document.getElementById("btnClear").addEventListener("click", function(){
+    askConfirm("Isso vai apagar os dados preenchidos deste formulário (o registro continua salvo, em branco). Deseja continuar?", function(){
+      form.reset();
+      signaturePads.empregador.clear();
+      signaturePads.empregado.clear();
+      updateConditionalVisibility();
+      if(currentId){
+        localStorage.removeItem(recordKey(currentId));
+        upsertEntry({ id: currentId, nome: "", empresa: "", status: "andamento", updatedAt: new Date().toISOString() });
+      }
+      updateProgress();
+      updateRecordBar();
+    }, "Limpar formulário");
+  });
+
+  /* ================= Records: create / load / switch / list ================= */
+  function setStatus(id, status){
+    if(!id) return;
+    upsertEntry({ id: id, status: status, updatedAt: new Date().toISOString() });
+    updateRecordBar();
+    renderRecordsList();
+  }
+
+  function setCurrentId(id){
+    currentId = id;
+    localStorage.setItem(CURRENT_KEY, id);
+  }
+
+  function loadRecord(id){
+    setCurrentId(id);
+    var raw = localStorage.getItem(recordKey(id));
+    var data = {};
+    try{ data = raw ? JSON.parse(raw) : {}; }catch(e){ data = {}; }
+    fillForm(data);
+    signaturePads.empregador.reload();
+    signaturePads.empregado.reload();
+    updateProgress();
+    updateRecordBar();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function createRecord(){
+    var id = uid();
+    upsertEntry({ id: id, nome: "", empresa: "", status: "andamento", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+    loadRecord(id);
+  }
+
+  function switchTo(id){
+    if(id === currentId) return;
+    save();
+    loadRecord(id);
+  }
+
+  function duplicateRecord(id){
+    var raw = localStorage.getItem(recordKey(id));
+    var data = {};
+    try{ data = raw ? JSON.parse(raw) : {}; }catch(e){ data = {}; }
+    var newId = uid();
+    localStorage.setItem(recordKey(newId), JSON.stringify(data));
+    var sigE = localStorage.getItem(sigKey(id, "empregador"));
+    var sigF = localStorage.getItem(sigKey(id, "empregado"));
+    if(sigE) localStorage.setItem(sigKey(newId, "empregador"), sigE);
+    if(sigF) localStorage.setItem(sigKey(newId, "empregado"), sigF);
+    var original = getEntry(id) || {};
+    upsertEntry({
+      id: newId,
+      nome: (data.nome || "") + (data.nome ? " (cópia)" : ""),
+      empresa: data.empresa || "",
+      status: "andamento",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    renderRecordsList();
+    return newId;
+  }
+
+  function deleteRecord(id){
+    askConfirm("Excluir este formulário definitivamente? Essa ação não pode ser desfeita.", function(){
+      var wasCurrent = (id === currentId);
+      removeEntry(id);
+      if(wasCurrent){
+        var remaining = getIndex().sort(function(a,b){ return new Date(b.updatedAt||0) - new Date(a.updatedAt||0); });
+        if(remaining.length){ loadRecord(remaining[0].id); } else { createRecord(); }
+      }
+      renderRecordsList();
+    }, "Excluir formulário");
+  }
+
+  function updateRecordBar(){
+    var entry = getEntry(currentId);
+    var nameEl = document.getElementById("currentRecordName");
+    var statusEl = document.getElementById("currentRecordStatus");
+    var label = (entry && (entry.nome || entry.empresa)) || "Novo formulário (sem nome)";
+    nameEl.textContent = label;
+    var isSent = entry && entry.status === "enviado";
+    statusEl.textContent = isSent ? "Enviado" : "Em andamento";
+    statusEl.className = "status-pill " + (isSent ? "enviado" : "andamento");
+  }
+
+  function fmtDate(iso){
+    if(!iso) return "";
+    var d = new Date(iso);
+    return d.toLocaleDateString("pt-BR") + " às " + d.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"});
+  }
+
+  var recordsFilter = "todos";
+  function renderRecordsList(){
+    var list = getIndex().sort(function(a,b){ return new Date(b.updatedAt||0) - new Date(a.updatedAt||0); });
+    if(recordsFilter !== "todos"){
+      list = list.filter(function(r){ return r.status === recordsFilter; });
+    }
+    var container = document.getElementById("recordsList");
+    if(!list.length){
+      container.innerHTML = '<div class="records-empty">Nenhum formulário nesta categoria ainda.</div>';
+      return;
+    }
+    container.innerHTML = list.map(function(r){
+      var isSent = r.status === "enviado";
+      var name = r.nome || "Sem nome preenchido";
+      var sub = (r.empresa ? r.empresa + " · " : "") + "Atualizado em " + fmtDate(r.updatedAt);
+      return '' +
+        '<div class="record-card' + (r.id === currentId ? " is-current" : "") + '" data-id="' + r.id + '">' +
+          '<div class="record-card-info">' +
+            '<div class="rname">' + escapeHtml(name) + ' <span class="status-pill ' + (isSent ? "enviado" : "andamento") + '" style="margin-left:6px;">' + (isSent ? "Enviado" : "Em andamento") + '</span></div>' +
+            '<div class="rmeta">' + escapeHtml(sub) + '</div>' +
+          '</div>' +
+          '<div class="record-card-actions">' +
+            '<button type="button" data-action="open">Abrir</button>' +
+            '<button type="button" data-action="duplicate">Duplicar</button>' +
+            '<button type="button" data-action="toggle-status">' + (isSent ? "Reabrir" : "Marcar enviado") + '</button>' +
+            '<button type="button" class="danger" data-action="delete">Excluir</button>' +
+          '</div>' +
+        '</div>';
+    }).join("");
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  document.getElementById("recordsList").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-action]");
+    if(!btn) return;
+    var card = e.target.closest(".record-card");
+    var id = card.getAttribute("data-id");
+    var action = btn.getAttribute("data-action");
+    if(action === "open"){ switchTo(id); closeModal("recordsModalOverlay"); }
+    else if(action === "duplicate"){ duplicateRecord(id); }
+    else if(action === "toggle-status"){
+      var entry = getEntry(id);
+      setStatus(id, entry.status === "enviado" ? "andamento" : "enviado");
+    }
+    else if(action === "delete"){ deleteRecord(id); }
+  });
+
+  document.getElementById("recordsTabs").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-filter]");
+    if(!btn) return;
+    recordsFilter = btn.getAttribute("data-filter");
+    document.querySelectorAll("#recordsTabs button").forEach(function(b){ b.classList.toggle("active", b === btn); });
+    renderRecordsList();
+  });
+
+  document.getElementById("btnOpenRecords").addEventListener("click", function(){
+    save();
+    renderRecordsList();
+    openModal("recordsModalOverlay");
+  });
+  document.getElementById("btnNewRecord").addEventListener("click", function(){
+    save();
+    createRecord();
+  });
+  document.getElementById("btnNewRecordModal").addEventListener("click", function(){
+    save();
+    createRecord();
+    closeModal("recordsModalOverlay");
+  });
+
+  /* ---------------- Init ---------------- */
+  (function init(){
+    var savedCurrent = localStorage.getItem(CURRENT_KEY);
+    if(savedCurrent && getEntry(savedCurrent)){
+      loadRecord(savedCurrent);
+    } else {
+      createRecord();
+    }
+    updateProgress();
+  })();
+})();
+</script>
+</body>
+</html>
