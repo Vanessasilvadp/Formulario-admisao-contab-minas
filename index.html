@@ -555,6 +555,23 @@
             <input type="text" id="adicionalNoturnoDetalhe" name="adicionalNoturnoDetalhe" placeholder="Ex.: percentual aplicado, faixa de horário...">
           </div>
         </div>
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="valeTransporte" data-cond-toggle="condValeTransporte"> Vale Transporte</label>
+          <div class="cond-detail" id="condValeTransporte">
+            <label for="valeTransporteQtd">Quantidade</label>
+            <input type="text" id="valeTransporteQtd" name="valeTransporteQtd" inputmode="numeric" maxlength="3" placeholder="Ex.: 2 por dia">
+          </div>
+        </div>
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="outrasCondicoes" data-cond-toggle="condOutras"> Outras (especifique)</label>
+          <div class="cond-detail" id="condOutras">
+            <label for="outrasCondicoesDetalhe">Especifique</label>
+            <input type="text" id="outrasCondicoesDetalhe" name="outrasCondicoesDetalhe" placeholder="Descreva a condição especial">
+          </div>
+        </div>
+        <div class="cond-item">
+          <label class="pill"><input type="checkbox" name="nenhumaCondicao"> Nenhuma</label>
+        </div>
       </div>
     </div>
   </div>
@@ -1260,6 +1277,9 @@
     checklineWithNote("Deficiência Física" + ((data.deficienciaFisica && data.deficienciaFisicaDetalhe) ? " — " + data.deficienciaFisicaDetalhe : ""), data.deficienciaFisica, "Qual deficiência");
     checklineWithNote("Insalubridade" + ((data.insalubridade && data.insalubridadeGrau) ? " — " + data.insalubridadeGrau : ""), data.insalubridade, "Qual percentual / grau");
     checklineWithNote("Adicional Noturno" + ((data.adicionalNoturno && data.adicionalNoturnoDetalhe) ? " — " + data.adicionalNoturnoDetalhe : ""), data.adicionalNoturno, "Detalhamento");
+    checklineWithNote("Vale Transporte" + ((data.valeTransporte && data.valeTransporteQtd) ? " — Quantidade: " + data.valeTransporteQtd : ""), data.valeTransporte, "Quantidade");
+    checklineWithNote("Outras" + ((data.outrasCondicoes && data.outrasCondicoesDetalhe) ? " — " + data.outrasCondicoesDetalhe : ""), data.outrasCondicoes, "Especifique");
+    checkline("Nenhuma", !blank && data.nenhumaCondicao);
 
     h2("05 · Contrato de Experiência");
     document.querySelectorAll('input[name="contratoExperiencia"]').forEach(function(radio){
